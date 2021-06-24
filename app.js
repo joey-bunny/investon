@@ -19,7 +19,8 @@ const port = process.env.PORT || 3000;
 /*
 **DATABASE
 */
-mongoose.connect(dbUrl, {useNewUrlParser: true, useUnifiedTopology: true});
+const mongoUrl = "mongodb+srv://joecliqs:<password>@investon.ytqqw.mongodb.net/myFirstDatabase?retryWrites=true&w=majority";
+mongoose.connect(mongoUrl, {useNewUrlParser: true, useUnifiedTopology: true});
 mongoose.connection.on('connected', () => {
     console.log('connected to mongoDB');
 })
