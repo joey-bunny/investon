@@ -19,34 +19,35 @@ const port = process.env.PORT || 3000;
 /*
 **DATABASE
 */
-const mongoUrl = "mongodb+srv://joecliqs:<password>@investon.ytqqw.mongodb.net/myFirstDatabase?retryWrites=true&w=majority";
+console.log('Database conn');
+const mongoUrl = "mongodb+srv://joecliqs:Iloved$life0@investon.ytqqw.mongodb.net";
 mongoose.connect(mongoUrl, {useNewUrlParser: true, useUnifiedTopology: true});
 mongoose.connection.on('connected', () => {
     console.log('connected to mongoDB');
-})
+});
 
-
+console.log('Cors, bodyParser');
 app.use(cors());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
-app.use(cookieSession({
-    name: 'investron-Session',
-    keys: ['key1', 'key2']
-  }));
 
+console.log('Passport');
 app.use(passport.initialize());
 app.use(passport.session());
 app.use(flash());
+
+console.log('Passport strategies');
 require('./Strategies/LocalStrategy');
-// require('./Strategies/Local-JWT.strategy');
 require('./Strategies/authJwt.strategy');
 
 /*
 **ROUTES
 */
+console.log('Routes');
 app.use('/auth', authRoute);
 app.use('/', passport.authenticate('jwt', { session: false }),investmentRoute);
 
+console.log('App listen');
 app.listen(port, () => {
   console.log(`Example app listening at http://localhost:${port}`);
 })
