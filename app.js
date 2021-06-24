@@ -31,7 +31,7 @@ app.use(bodyParser.json());
 app.use(cookieSession({
     name: 'investron-Session',
     keys: ['key1', 'key2']
-  }))
+  }));
 
 app.use(passport.initialize());
 app.use(passport.session());
