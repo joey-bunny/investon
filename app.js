@@ -15,12 +15,11 @@ const UserModel = require('./Models/user.model');
 
 const app = express();
 const port = process.env.PORT || 3000;
-
 /*
 **DATABASE
 */
 console.log('Database conn');
-const mongoUrl = "mongodb+srv://joecliqs:Iloved$life0@investon.ytqqw.mongodb.net";
+const mongoUrl = process.env.MONGODB_URL;
 mongoose.connect(mongoUrl, {useNewUrlParser: true, useUnifiedTopology: true});
 mongoose.connection.on('connected', () => {
     console.log('connected to mongoDB');
