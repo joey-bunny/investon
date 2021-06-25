@@ -55,10 +55,9 @@ router.post('/createinvestment', async (req, res) => {
                 if (err) res.send(err);
                 console.log(investmentID);
                 console.log(docs);
-                return res.status(200).json({message: 'Investment created', data: docs});
-            })
-            return res.status(200).send('ok');
-        })
+                return res.status(200).json({message: 'Investment created', data: investment});
+            });
+        });
     } catch (err) {
         res.send(err);
     }
