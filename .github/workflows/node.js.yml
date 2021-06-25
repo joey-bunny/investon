@@ -28,9 +28,6 @@ jobs:
       
     - name: run npm
       run: npm i
-
-    - name: run build
-      run: npm run build
     
     - name: Depoly to heroku
       uses: akhileshns/heroku-deploy@v3.12.12
