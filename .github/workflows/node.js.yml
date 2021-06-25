@@ -25,8 +25,12 @@ jobs:
       uses: actions/setup-node@v2
       with:
         node-version: ${{ matrix.node-version }}
-    - run: npm i
-    - run: npm run build --if-present
+      
+    - name: run npm
+      run: npm i
+
+    - name: run build
+      run: npm run build --if-present
     
      - name: Depoly to heroku
       uses: akhileshns/heroku-deploy@v3.12.12
