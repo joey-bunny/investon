@@ -1,14 +1,11 @@
 /*
  **Investment Creation and management Router
  */
-const {
-    Router
-} = require('express');
+const { Router } = require('express');
 const router = Router();
 const InvestmentModel = require('../Models/investment.model');
 const UserModel = require('../Models/user.model');
 const TransactionModel = require('../Models/transaction.model');
-const { route } = require('./auth');
 /*
  **Create Investment Route
  */
@@ -110,5 +107,33 @@ router.post('/makeInvestment', async (req, res) => {
 router.get('/game', async (req, res) => {
     res.send(req.user);
 })
+
+router.post('/changepassword', async (req, res) => {
+    const bcrypt = require('bcrypt');
+    const { password, newPassword } = req.body;
+    const userID = req.user._id;
+
+    // if (!password) res.json({message: ''})
+
+    const user = await UserModel.findById(userID).exec();
+    const match = await bcrypt.compare(password, user.password);
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+    if(!match) return res.send({'message': 'Incorrect password'});
+
+    try{
+        UserModel.findByIdAndUpdate(userID, {password: hashedPassword}, {new: true}, function (err, user) {
+            console.log('here 1');
+            if (err) res.send(err);
+            if (!user) res.send('No user');
+            
+            console.log(user);
+            res.send({'message': 'Password changed'});
+        });
+    } catch (err) {
+        console.log('Error catch');
+        res.send(err);
+    }
+});
 
 module.exports = router;
