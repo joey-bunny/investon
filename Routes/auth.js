@@ -139,5 +139,8 @@ router.post('/profile', passport.authenticate('jwt', { session: false }),
     }
 );
 
+router.get('/game', async (req, res) => {
+    res.send('Working page');
+})
 
 module.exports = router;
