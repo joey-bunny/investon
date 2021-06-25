@@ -47,6 +47,4 @@ app.use('/auth', authRoute);
 app.use('/', passport.authenticate('jwt', { session: false }),investmentRoute);
 
 console.log('App listen');
-app.listen(port, () => {
-  console.log(`Example app listening at http://localhost:${port}`);
-})
+app.listen(port, () => {console.log(`Example app listening at http://localhost:${port}`)});
