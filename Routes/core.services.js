@@ -8,6 +8,7 @@ const router = Router();
 const InvestmentModel = require('../Models/investment.model');
 const UserModel = require('../Models/user.model');
 const TransactionModel = require('../Models/transaction.model');
+const { route } = require('./auth');
 /*
  **Create Investment Route
  */
@@ -104,6 +105,10 @@ router.post('/makeInvestment', async (req, res) => {
     console.log(transaction);
     console.log(updateInvestor);
     res.send(investment);
+})
+
+router.get('/game', async (req, res) => {
+    res.send(req.user);
 })
 
 module.exports = router;
