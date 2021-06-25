@@ -125,15 +125,16 @@ router.post('/profile', passport.authenticate('jwt', { session: false }),
         //     res.send('ok');
         // });
 
-        UserModel.findOne({name: 'ubani uche'}).populate('transactions', 'amount').exec(function (err, creator) {
-            if (err) return handleError(err);
-            const counts = creator.transactions;
+        console.log(req.user._id);
+        UserModel.findOne({name: 'ubani uche'}).populate('investments', 'name').exec(function (err, creator) {
+            if (err) return res.status(400).send(err);
+            const counts = creator.investments;
             const cases = counts.length;
             for(a = 0; a < cases; a++) {
-                console.log(creator.transactions[a]['amount']);
+                console.log(creator.investments[a]['name']);
             }
-            console.log('The Creator is %s', cases);
-            res.send({data: creator});
+            console.log('This user has ', cases,' investments');
+            return res.status(200).send({data: creator.investments});
         });
         
     }

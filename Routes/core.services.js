@@ -52,8 +52,7 @@ router.post('/createinvestment', async (req, res) => {
             if (err) return res.send(err);
             const investmentID = investment._id;
             UserModel.findByIdAndUpdate(userID, { $push: { investments: investmentID }}, function (err, docs) {
-                if (err) res.send(err);
-                console.log(investmentID);
+                if (err) return res.send(err);
                 console.log(docs);
                 return res.status(200).json({message: 'Investment created', data: investment});
             });
