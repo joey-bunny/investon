@@ -40,7 +40,7 @@ router.post('/register', async (req, res) => {
             mobile,
             password: hashedPassword
         }, function (err, user) {
-            const token = jwt.sign({ user }, 'your_jwt_secret', { expiresIn: '1d'});
+            const token = jwt.sign({ user }, process.env.PASSPORT_SIGNATURE, { expiresIn: '1d'});
             console.log(token);
             res.json({ 'message': 'User created', 'token': token });
         })
@@ -76,7 +76,7 @@ router.get('/loginfailed', ( req, res ) => {
 router.get('/loginsuccess', isAuthenticated, async ( req, res ) => {
     console.log(req.user[0]['_json']['email']);
     const user = await UserModel.findOne({email: req.user[0]['_json']['email']}, function (err, user){
-        const token = jwt.sign({user}, 'your_jwt_secret', { expiresIn: '1d'});
+        const token = jwt.sign({user}, process.env.PASSPORT_SIGNATURE, { expiresIn: '1d'});
         console.log(token);
         res.json({'token': token});
     })
@@ -97,7 +97,7 @@ router.post('/login', function (req, res) {
                res.send(err);
            }
            // generate a signed son web token with the contents of user object and return it in the response
-           const token = jwt.sign({user}, 'your_jwt_secret', { expiresIn: '1d'});
+           const token = jwt.sign({user}, process.env.PASSPORT_SIGNATURE, { expiresIn: '1d'});
             // AuthModel.findOne({userId: user._id}, function (err){})
            console.log(user._id);
            return res.json({'tokens': token});
