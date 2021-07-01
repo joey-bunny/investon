@@ -45,11 +45,11 @@ const investmentRoute = require('./Routes/investment');
 const transactionRoute = require('./Routes/transaction');
 
 // ROUTES
-app.use('/', async (req, res) => { return res.status(200).send({message: 'Welcome to Investon'})});
-app.use('/auth', authRoute);
-app.use('/user', passport.authenticate('jwt', { session: false }), userRoute);
-app.use('/investment', passport.authenticate('jwt', { session: false }), investmentRoute);
-app.use('/transaction', passport.authenticate('jwt', { session: false }), transactionRoute);
+app.get('/api', async (req, res) => { return res.status(200).send({message: 'Welcome to Investon'})});
+app.use('/api/auth', authRoute);
+app.use('/api/user', passport.authenticate('jwt', { session: false }), userRoute);
+app.use('/api/investment', passport.authenticate('jwt', { session: false }), investmentRoute);
+app.use('/api/transaction', passport.authenticate('jwt', { session: false }), transactionRoute);
 
 
 app.listen(port, () => {console.log(`Example app listening at http://localhost:${port}`)});
