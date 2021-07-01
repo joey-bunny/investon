@@ -36,13 +36,14 @@ router.post('/register', async (req, res) => {
     // Hash password
     const hashedPassword = await bcrypt.hash(password, 10);
 
+    try {
     // Store user in database
-    const user = await UserModel.create({
-        name,
-        email,
-        mobile,
-        password: hashedPassword
-    });
+        const user = await UserModel.create({
+            name,
+            email,
+            mobile,
+            password: hashedPassword
+        });
 
         const userId = user._id;
 
@@ -53,26 +54,31 @@ router.post('/register', async (req, res) => {
         if(!storeCode) return res.status(400).send({message: 'error'});
         
         
-        // Send email verification mail with defined transport object
+        
         const completeRegistrationUrl = `${complete_local_reg_uri}/${userId}/${code}`
+    
         try {
-        // Create user
-        const info = await transport.sendMail({
-            from: '"Investon" <admin@investon.com>', // sender address
-            to: email, // list of receivers
-            subject: "Confirm email ✔", // Subject line
-            text: `Hello ${name}, follow the link below to complete your registration`, // plain text body
-            html: `<p>
-                        <b>Hello ${name}, follow the link below to complete your registration</b><br>
-                        <a href = '${completeRegistrationUrl}'>Confirm email</a>
-                    </p>`, // html body
-        });
+            // Send email verification mail with defined transport object
+            const info = await transport.sendMail({
+                from: '"Investon" <admin@investon.com>', // sender address
+                to: email, // list of receivers
+                subject: "Confirm email ✔", // Subject line
+                text: `Hello ${name}, follow the link below to complete your registration`, // plain text body
+                html: `<p>
+                            <b>Hello ${name}, follow the link below to complete your registration</b><br>
+                            <a href = '${completeRegistrationUrl}'>Confirm email</a>
+                        </p>`, // html body
+            });
         
 
-        console.log(info);
+            console.log(info);
         
-        // Return response
-        return res.status(200).send({ message: 'Confirmation link has been sent to your email'});
+            // Return response
+            return res.status(200).send({ message: 'Confirmation link has been sent to your email'});
+        } catch (err) {
+            // Return error caught if any
+            return res.status(400).send(err);
+        }
     } catch (err) {
         // Return error caught if any
         return res.status(400).send(err);
