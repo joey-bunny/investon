@@ -29,7 +29,17 @@ userSchema = schema({
         type: schema.Types.ObjectId,
         ref: 'transactions'
     }],
-    google: Object
+    google: {
+        type: Object
+    },
+    verified: {
+        type: Boolean,
+        default: false
+    },
+    createdAt: {
+        type: Date,
+        default: Date.now()
+    }
 });
 
 userSchema.plugin(uniqueValidator);

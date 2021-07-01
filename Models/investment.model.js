@@ -45,14 +45,22 @@ const investmentSchema = schema({
         type: String,
         minLength: [1, 'Input a funding closing date']
     },
-    creator: {
+    admin: {
         type: schema.Types.ObjectId,
         ref: 'users'
     },
     investors: [{
         type: schema.Types.ObjectId,
         ref: 'users'
-    }]
+    }],
+    transactions: [{
+        type: schema.Types.ObjectId,
+        ref: 'transactions'
+    }],
+    timestamp: {
+        type: Date,
+        default: Date.now()
+    }
 });
 
 investmentSchema.plugin(uniqueValidator);

@@ -15,7 +15,6 @@ transactionSchema = schema({
         type: Number,
         minLength: [1, 'Input investment amount']
     },
-
     timestamp: {
         type: Date,
         default: Date.now()
