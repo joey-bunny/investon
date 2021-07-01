@@ -52,13 +52,10 @@ router.post('/register', async (req, res) => {
 
         // Confirm storage of verification code
         if(!storeCode) return res.status(400).send({message: 'error'});
-        
-        
-        
-        const completeRegistrationUrl = `${complete_local_reg_uri}/${userId}/${code}`
     
         try {
             // Send email verification mail with defined transport object
+            const completeRegistrationUrl = `${complete_local_reg_uri}/${userId}/${code}`
             const info = await transport.sendMail({
                 from: '"Investon" <admin@investon.com>', // sender address
                 to: email, // list of receivers
@@ -69,9 +66,6 @@ router.post('/register', async (req, res) => {
                             <a href = '${completeRegistrationUrl}'>Confirm email</a>
                         </p>`, // html body
             });
-        
-
-            console.log(info);
         
             // Return response
             return res.status(200).send({ message: 'Confirmation link has been sent to your email'});
@@ -272,6 +266,9 @@ router.post('/completeresetpassword/:userId/:code', async (req, res) => {
     // Validate password input
     if (!password) return res.status(400).send({message: 'Input a password'});
 
+    // Hash password
+    const hashedPassword = await bcrypt.hash(password, 10);
+
     // Check for verification code
     VerifCodeModel.findOne({'code': code}, async function (err, keySearch) {
         
@@ -280,7 +277,7 @@ router.post('/completeresetpassword/:userId/:code', async (req, res) => {
         if (userId !== keySearch.userId) return res.status(400).send({message: 'Invalid link, request for another'});
 
         // Check for user
-        UserModel.findByIdAndUpdate(userId, {password}, function (err, passChange) {
+        UserModel.findByIdAndUpdate(userId, {password: hashedPassword}, function (err, passChange) {
 
             // Validate query response response
             if (err || !passChange) return res.status(400).send({message: 'error'});
