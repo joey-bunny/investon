@@ -76,7 +76,7 @@ router.post('/register', async (req, res) => {
         // Return error caught if any
         return res.status(400).send(err);
     }
-})
+});
 
 /*
 ** COMPLETE REGISTRATION ROUTE
@@ -230,11 +230,7 @@ router.post('/resetpassword', async (req, res) => {
         
 
         const userId = userSearch._id;
-console.log('-----------------------------------------');
-        console.log(userId);
-
-console.log('-----------------------------------------');
-        console.log('Here 2');
+        
         // Create verification code
         const saveCode = await VerifCodeModel.create({ userId, code });
 

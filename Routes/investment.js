@@ -6,6 +6,7 @@ const router = Router();
 const InvestmentModel = require('../Models/investment.model');
 const UserModel = require('../Models/user.model');
 const TransactionModel = require('../Models/transaction.model');
+
 /*
  **Create Investment Route
  */
