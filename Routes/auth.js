@@ -2,22 +2,23 @@ const { Router } = require('express');
 const passport = require('passport');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
-const nodemailer = require('nodemailer');
 const transport = require('../utils/mailer.config');
 
 const router = Router();
-const baseUrl = process.env.BASE_URL
-const baseUrlLocal = process.env.BASE_URL_LOCAL
 
 const UserModel = require('../Models/user.model');
-const InvestmentModel = require('../Models/investment.model');
 const VerifCodeModel = require('../Models/verification.code.model');
+
+const baseUrlLive = process.env.BASE_URL;
+const baseUrlLocal = process.env.BASE_URL_LOCAL;
+const complete_local_reg_uri = process.env.COMPLETE_LOCAL_REG_URL;
+const complete_reset_pass_uri = process.env.COMPLETE_RESET_PASS_URL;
+const login_failed_uri = process.env.G_LOGIN_FAIL_URL;
+const login_success_uri = process.env.G_LOGIN_SUCCESS_URL;
 
 const min = 1000000;
 const max = 100000000;
 const code = Math.floor(Math.random() * (max - min + 1)) + min;
-
-const baseUrlLive = process.env.BASE_URL;
 
 /*
 ** Register new user
@@ -53,7 +54,7 @@ router.post('/register', async (req, res) => {
         
         
         // Send email verification mail with defined transport object
-        const completeRegistrationUrl = `${baseUrlLocal}/auth/completeregistration/${userId}/${code}`
+        const completeRegistrationUrl = `${complete_local_reg_uri}/${userId}/${code}`
         try {
         // Create user
         const info = await transport.sendMail({
@@ -103,7 +104,7 @@ router.get('/completeregistration/:userId/:code', async (req, res) => {
                 // Confirm user verification status
                 if (verified === true) return res.status(400).send({message: 'Your account has already been verified. Please login to proceed'});
 
-                const completeRegistrationUrl = `${baseUrlLocal}/auth/completeregistration/${userId}/${code}`
+                const completeRegistrationUrl = `${complete_local_reg_uri}/${userId}/${code}`
                 // Send verification mail if user is unverified
                 await transport.sendMail({
                 from: '"Investon" <admin@investon.com>', // sender address
@@ -145,17 +146,15 @@ router.get('/googleauth', passport.authenticate('google', {scope: ['profile', 'e
 ** Google auth Webhook route
 */
 router.get('/googleauth/registerCallback?',
-    passport.authenticate('google', {failureRedirect: `${baseUrlLive}/api/auth/loginfailed`}), async ( req, res ) => {
+    passport.authenticate('google', {failureRedirect: login_failed_uri}), async ( req, res ) => {
         // Get user from database
         const user = await UserModel.findOne({email: req.user[0]['_json']['email']});
-        console.log('--------------------------------------------------');
-        console.log(user);
 
         // Create user token
         token = jwt.sign({user}, process.env.PASSPORT_SIGNATURE, { expiresIn: '1d'});
 
         // Redirect user to success page and send token through url
-        res.redirect(`${baseUrlLive}/api/auth/loginsuccess/${token}`);
+        res.redirect(`${login_success_uri}/${token}`);
 });
 
 /*
@@ -234,7 +233,7 @@ router.post('/resetpassword', async (req, res) => {
         // Create verification code
         const saveCode = await VerifCodeModel.create({ userId, code });
 
-        const url = `${baseUrlLocal}/auth/completeresetpassword/${userSearch._id}/${code}`
+        const url = `${complete_reset_pass_uri}/${userId}/${code}`
 
         // send mail with defined transport object
         const info = await transport.sendMail({
