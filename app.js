@@ -45,10 +45,10 @@ const investmentRoute = require('./Routes/investment');
 const transactionRoute = require('./Routes/transaction');
 
 // ROUTES
-app.use('/auth', authRoute);
-app.use('/', passport.authenticate('jwt', { session: false }), userRoute);
-app.use('/', passport.authenticate('jwt', { session: false }), investmentRoute);
-app.use('/', passport.authenticate('jwt', { session: false }), transactionRoute);
+app.use('api/auth', authRoute);
+app.use('api/', passport.authenticate('jwt', { session: false }), userRoute);
+app.use('api/', passport.authenticate('jwt', { session: false }), investmentRoute);
+app.use('api/', passport.authenticate('jwt', { session: false }), transactionRoute);
 
 
 app.listen(port, () => {console.log(`Example app listening at http://localhost:${port}`)});

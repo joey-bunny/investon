@@ -17,9 +17,7 @@ const min = 1000000;
 const max = 100000000;
 const code = Math.floor(Math.random() * (max - min + 1)) + min;
 
-router.get('', async (req, res) => {
-    return res.send({url: process.env.BASE_URL, gang: process.env.GANG});
-});
+const baseUrlLive = process.env.BASE_URL;
 
 /*
 ** Register new user
@@ -147,7 +145,7 @@ router.get('/googleauth', passport.authenticate('google', {scope: ['profile', 'e
 ** Google auth Webhook route
 */
 router.get('/googleauth/registerCallback?',
-    passport.authenticate('google', {failureRedirect: 'http://localhost:3000/auth/loginfailed'}), async ( req, res ) => {
+    passport.authenticate('google', {failureRedirect: `${baseUrlLive}auth/loginfailed`}), async ( req, res ) => {
         // Get user from database
         const user = await UserModel.findOne({email: req.user[0]['_json']['email']});
         console.log('--------------------------------------------------');
@@ -157,7 +155,7 @@ router.get('/googleauth/registerCallback?',
         token = jwt.sign({user}, process.env.PASSPORT_SIGNATURE, { expiresIn: '1d'});
 
         // Redirect user to success page and send token through url
-        res.redirect(`http://localhost:3000/auth/loginsuccess/${token}`);
+        res.redirect(`${baseUrlLive}auth/loginsuccess/${token}`);
 });
 
 /*
