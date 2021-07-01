@@ -18,8 +18,8 @@ const max = 100000000;
 const code = Math.floor(Math.random() * (max - min + 1)) + min;
 
 router.get('', async (req, res) => {
-    return res.send(process.env.BASE_URL)
-})
+    return res.send(secret.env.GANG);
+});
 
 /*
 ** Register new user
