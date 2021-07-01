@@ -271,7 +271,7 @@ router.post('/completeresetpassword/:userId/:code', async (req, res) => {
         
         // Validate query response response
         if (err || !keySearch) return res.status(400).send({message: 'Link expired'});
-        if (userId !== keySearch.userId) return res.status(400).send({message: 'Invalid link, request for another'});
+        if (userId !== keySearch.userId) return res.status(400).send({message: 'Invalid link, please request for another'});
 
         // Check for user
         UserModel.findByIdAndUpdate(userId, {password: hashedPassword}, function (err, passChange) {
@@ -280,7 +280,7 @@ router.post('/completeresetpassword/:userId/:code', async (req, res) => {
             if (err || !passChange) return res.status(400).send({message: 'error'});
 
             // Return response
-            return res.status(200).send({message: 'Password Changed. Please login to continue'});
+            return res.status(200).send({message: 'Password successfully changed. Please login to continue'});
         });
     });
 });
