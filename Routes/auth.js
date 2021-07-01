@@ -247,10 +247,7 @@ router.post('/resetpassword', async (req, res) => {
                     </p>`, // html body
         });
 
-        console.log("Message sent: %s", info.messageId);
-        // Message sent: <b658f8ca-6296-ccf4-8306-87d57a0b4321@example.com>
-
-        return res.status(200).send({message: 'Mail sent'});
+        return res.status(200).send({message: 'Reset link has been sent to your email.'});
     });
 });
 
@@ -283,7 +280,7 @@ router.post('/completeresetpassword/:userId/:code', async (req, res) => {
             if (err || !passChange) return res.status(400).send({message: 'error'});
 
             // Return response
-            return res.status(200).send({message: 'Key found'});
+            return res.status(200).send({message: 'Password Changed. Please login to continue'});
         });
     });
 });
