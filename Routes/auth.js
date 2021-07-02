@@ -8,10 +8,7 @@ const router = Router();
 
 const UserModel = require('../Models/user.model');
 const VerifCodeModel = require('../Models/verification.code.model');
-const InvestmentModel = require('../Models/investment.model');
 
-const baseUrlLive = process.env.BASE_URL;
-const baseUrlLocal = process.env.BASE_URL_LOCAL;
 const complete_local_reg_uri = process.env.COMPLETE_LOCAL_REG_URL;
 const complete_reset_pass_uri = process.env.COMPLETE_RESET_PASS_URL;
 const login_failed_uri = process.env.G_LOGIN_FAIL_URL;
@@ -57,7 +54,7 @@ router.post('/register', async (req, res) => {
         try {
             // Send email verification mail with defined transport object
             const completeRegistrationUrl = `${complete_local_reg_uri}/${userId}/${code}`
-            const info = await transport.sendMail({
+            await transport.sendMail({
                 from: '"Investon" <admin@investon.com>', // sender address
                 to: email, // list of receivers
                 subject: "Confirm email ✔", // Subject line
