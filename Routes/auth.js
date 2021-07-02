@@ -8,6 +8,7 @@ const router = Router();
 
 const UserModel = require('../Models/user.model');
 const VerifCodeModel = require('../Models/verification.code.model');
+const InvestmentModel = require('../Models/investment.model');
 
 const baseUrlLive = process.env.BASE_URL;
 const baseUrlLocal = process.env.BASE_URL_LOCAL;

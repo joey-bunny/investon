@@ -1,5 +1,5 @@
 /*
- **Investment Creation and management Router
+ **INVESTMENT ROUTER
  */
 const { Router } = require('express');
 const router = Router();
@@ -7,10 +7,34 @@ const InvestmentModel = require('../Models/investment.model');
 const UserModel = require('../Models/user.model');
 const TransactionModel = require('../Models/transaction.model');
 
+
 /*
- **Create Investment Route
+ **CHECK MY CURRENT INVESTMENTS ROUTE
  */
-router.post('/createinvestment', async (req, res) => {
+ router.get('/', async (req, res) => {
+    // Request required data
+    const userId = req.user._id;
+
+    // Query UserModel to get user data
+    const userData = await UserModel.findById(userId).populate([
+        {
+            path: 'transactions',
+            populate: [
+                {path: 'userId', select: 'name', model: 'users'},
+                {path: 'investmentId', select: 'name', model: 'investments'}
+            ]
+        }
+    ]);
+
+    // Return requested data
+    return res.status(200).send({message: userData});
+});
+
+
+/*
+ **CREATE INVESTMENT PLAN ROUTE
+ */
+router.post('/create', async (req, res) => {
     // { 
     //     "name": "AIG Bonds",
     //     "description": "AIG Bonds is an investment package that uses your funds to trade bonds",
@@ -23,6 +47,7 @@ router.post('/createinvestment', async (req, res) => {
     //     "fundingOpeningDate": "23-06-2021",
     //     "fundingClosingDate": "30-06-2021"
     // }
+    // Request required data
     const userId = req.user._id;
     const {
         name,
@@ -37,6 +62,22 @@ router.post('/createinvestment', async (req, res) => {
         fundingClosingDate,
     } = req.body;
 
+    // Validate input values
+    if (!name || name === null ) return res.status(400).send({message: 'Input investment name'});
+    if (!description || description === null ) return res.status(400).send({message: 'Input investment description'});
+    if (!minInvestment || minInvestment === null ) return res.status(400).send({message: 'Input minimum investment amount'});
+    if (!expectedReturn || expectedReturn === null ) return res.status(400).send({message: 'Input expected investment return'});
+    if (!returnFrequency || returnFrequency === null ) return res.status(400).send({message: 'Input investment return frequency'});
+    if (!investmentCurrency || investmentCurrency === null ) return res.status(400).send({message: 'Input investment currency'});
+    if (!investmentDuration || investmentDuration === null ) return res.status(400).send({message: 'Input investment duration'});
+    if (!targetAmount || targetAmount === null ) return res.status(400).send({message: 'Input investment target amount'});
+    if (!fundingOpeningDate || fundingOpeningDate === null ) return res.status(400).send({message: 'Input investment funding opening date'});
+    if (!fundingClosingDate || fundingClosingDate === null ) return res.status(400).send({message: 'Input investment funding closing date'});
+
+    // Convert date inputs to date format
+    const fundingOpeningDateInput = new Date(fundingOpeningDate).toISOString();
+    const fundingClosingDateInput = new Date(fundingClosingDate).toISOString();
+
     try {
         //Insert data into investment model
         InvestmentModel.create({
@@ -48,31 +89,36 @@ router.post('/createinvestment', async (req, res) => {
             investmentCurrency,
             investmentDuration,
             targetAmount,
-            fundingOpeningDate,
-            fundingClosingDate,
+            fundingOpeningDate: fundingOpeningDateInput,
+            fundingClosingDate: fundingClosingDateInput,
             admin: userId
-        }, function (err, investment) {
-            if (err) return res.send(err);
+            }, function (err, investment) {
+            // Confirm query result
+            if (err || !investment) return res.status(400).send(err);
+            
+            // Add investment id to user model
             const investmentID = investment._id;
             UserModel.findByIdAndUpdate(userId, { $push: { investments: investmentID }}, function (err, docs) {
-                if (err) return res.send(err);
-                console.log(docs);
+                // Confirm query result
+                if (err || !docs) return res.status(400).send(err);
+
+                // Return response
                 return res.status(200).json({message: 'Investment created', data: investment});
             });
         });
     } catch (err) {
-        res.send(err);
+        // Return error if any
+        return res.status(400).send(err);
     }
 });
 
+
 /*
-**MAKE INVESTMENT ROUTE
+**INVEST ROUTE
 */
-router.post('/makeInvestment', async (req, res) => {
-    const {
-        invName,
-        amount
-    } = req.body;
+router.post('/invest', async (req, res) => {
+    // Request required data
+    const { invName, amount } = req.body;
 
     // Confirm User Input
     if (!invName) res.send('insert investment name');
@@ -84,14 +130,19 @@ router.post('/makeInvestment', async (req, res) => {
     //Confirm Investment Existence
     if (!investment) return res.status(400).send('Investment not found');
     
+
+    let invTotal = [];
     const userId = req.user._id;
     const investmentId = investment._id;
     const investmentTarget = investment.targetAmount;
+    const investmentInvestors = investment.investors;
     const minInvestment = investment.minInvestment;
 
     const transactionsArray = investment.transactions;
     const transCounts = transactionsArray.length;
-    const admin = investment.admin;
+
+    // Confirm if investor exist in investment table
+    const checkInvestor = investmentInvestors.indexOf(userId);
 
     // Store Investment Amount In Array
     for (i = 0; i < transCounts; i++) {
@@ -103,11 +154,12 @@ router.post('/makeInvestment', async (req, res) => {
         return a + b;
     }, 0);
 
-    const remainingQuota = targetAmount - currentQuota;//Calculate Remaining Quota to meet Target Amount
+    const remainingQuota = investmentTarget - currentQuota;//Calculate Remaining Quota to meet Target Amount
 
     // Confirm Minimum Investment Amount Requirement Is Met
     if (amount < minInvestment) return res.status(400).send({message: `Minimum investment amount is ${minInvestment}`})
-    if (currentQuota >= targetAmount) return res.status(400).send({message: `This investment plan is closed as target quota has been met.`})
+    if (currentQuota >= investmentTarget) return res.status(400).send({message: `This investment plan is closed as target quota has been met.`})
+    
     //Store Transaction In Database
     const transaction = await TransactionModel.create({
         userId,
@@ -115,42 +167,54 @@ router.post('/makeInvestment', async (req, res) => {
         amount
     });
 
+    const transactionId = transaction._id;
+
     // Confirm Successful Storage Of Transaction Instance
     if (!transaction) return res.status(400).send({message: 'transaction incomplete'});
 
-    const transactionId = transaction._id;
+    // Confirm if investment exist in user portfolio
+    const getUser = await UserModel.findById(userId);
+    const getUserInvestments = getUser.investments;
+    const checkInvestment = getUserInvestments.indexOf(investmentId);
+    
+    // Update both Investment And Transaction In User Model if investment is not in user investment portfolio
+    if (checkInvestment === -1) await UserModel.findByIdAndUpdate(userId, { $push: { transactions: transactionId, investments: investmentId}}, {new: true});
 
-    console.log(transactionId)
-    // Update Investment And Transaction In User Model
-    const updateInvestor = await UserModel.findByIdAndUpdate(userId, { $push: { transactions: transactionId, investments: investmentId}}, {new: true});
+    // Update only Transaction In User Model if investment is exist in user investment portfolio
+    if (checkInvestment !== -1) await UserModel.findByIdAndUpdate(userId, { $push: { transactions: transactionId}}, {new: true});
 
-    // Update Investor And Transaction In Investment Model
-    const investmentUpdate = await InvestmentModel.findOneAndUpdate({ name: invName }, { $push: { investors: userId, transactions: transactionId }}, {new: true});
+    // Update Investor And Transaction In Investment Model if user does not exist in investment plan
+    if (checkInvestor === -1) await InvestmentModel.findOneAndUpdate({ name: invName }, { $push: { investors: userId, transactions: transactionId }}, {new: true});
 
-    // Return Log of transaction for confirmation
-    console.log(transaction);
-    console.log(updateInvestor);
+    // Update only Transaction In Investment Model if user exist in investment plan
+    if (checkInvestor !== -1) await InvestmentModel.findOneAndUpdate({ name: invName }, { $push: { transactions: transactionId }}, {new: true});
 
     // Return Response
-    return res.status(200).send(investmentUpdate);
+    return res.status(200).send({ message: `You just successfully invested ${amount} into ${invName}` });
 });
 
-/*
-**CHECK INVESTMENT STATUS
-*/
-router.post('/investmentstatus', async (req, res) => {
 
-    const { invName } = req.body;
+/*
+**VIEW INVESTMENT
+*/
+router.get('/:invName', async (req, res) => {
+    // Request required data
+    const { invName } = req.params;
     let invTotal = [];
 
-    // Find Investment In Database
-    const inv = await InvestmentModel.findOne({name: invName}).populate({ path: 'transactions', select: 'amount'}).populate({path: 'admin', select: 'name'});
+    // Validate input
+    if(!invName || invName == null) return res.status(400).send({message: 'Input investment name'});
 
-    // Confirm Investment Existence In Database
+    // Find investment in database and populate data
+    const inv = await InvestmentModel.findOne({name: invName}).populate({ path: 'transactions', select: 'amount'}).populate({path: 'investors', select: 'name'}).populate({path: 'admin', select: 'name'});
+
+    // Confirm investment existence in database
     if (!inv) return res.status(400).send({message: `${invName} Investment not found`})
 
-    // Store Investment Data In Variables
+    // Store investment data in variables
+    const admin = inv.admin;
     const name = inv.name;
+    const investors = inv.investors;
     const description = inv.description;
     const minInvestment = inv.minInvestment;
     const expectedReturn = inv.expectedReturn;
@@ -163,25 +227,29 @@ router.post('/investmentstatus', async (req, res) => {
 
     const transactionsArray = inv.transactions;
     const transCounts = transactionsArray.length;
-    const admin = inv.admin;
 
-    // Store Investment Amount In Array
+    // Store investment amount from database in array
     for (i = 0; i < transCounts; i++) {
         invTotal.push(transactionsArray[i]['amount']);
     }
     
-    // Sum Current Investment Funds
+    // Sum current investment amounts
     const currentQuota = invTotal.reduce(function (a, b) {
         return a + b;
     }, 0);
 
+    //Calculate Remaining Quota to meet Target Amount
+    const remainingQuota = currentQuota - targetAmount;
 
-    const remainingQuota = currentQuota - targetAmount;//Calculate Remaining Quota to meet Target Amount
+    let status;
+    if (fundingClosingDate > Date.now()) status = 'open';
+    if (fundingClosingDate < Date.now()) status = 'closed';
 
     //Object Of Data To Be Returned
     const data = {
-        admin,
         name,
+        admin,
+        investors,
         description,
         minInvestment,
         expectedReturn,
@@ -192,60 +260,34 @@ router.post('/investmentstatus', async (req, res) => {
         targetAmount,
         remainingQuota,
         fundingOpeningDate,
-        fundingClosingDate
-    }
+        fundingClosingDate,
+        status
+    };
 
     //Return Response
     return res.status(200).send({data: data});
 });
 
-/*
- **CHECK MY CURRENT INVESTMENTS
- */
-router.get('/myinvestment', async (req, res) => {
-    
-    const userId = req.user._id;
-
-    // Query UserModel to get user data
-    const userData = await UserModel.findById(userId).populate([
-        {
-            path: 'transactions',
-            populate: [{
-                path: 'userId', select: 'name', model: 'users'
-            }, {path: 'investmentId', select: 'name', model: 'investments'}]
-        }
-    ]);
-
-    // Return requested data
-    console.log(userData);
-    return res.status(200).send({message: userData});
-});
 
 /*
- **SEARCH INVESTMENT DATA BY NAME
+ **GET INVESTMENT BY NAME ROUTE
  */
-router.post('/investment', async (req, res) => {
-    
-    const { invName } = req.body;
+// router.post('/investment', async (req, res) => {
+//     // Request required data
+//     const { invName } = req.body;
 
-    // Get requested investment data
-    const investmentData = await InvestmentModel.findOne({name: invName}).populate(
-        [
-            {
-                path: 'investors', select: 'name',
-            }
-        ]
-    );
+//     // Get requested investment data
+//     const investment = await InvestmentModel.findOne({name: invName}).populate([{ path: 'investors', select: 'name'}]);
 
-    // Return requested data
-    console.log(investmentData);
-    return res.status(200).send({message: investmentData});
-});
+//     // Return requested data
+//     return res.status(200).send({message: investment});
+// });
+
 
 /*
 **DELETE INVESTMENT ROUTE
 */
-router.delete('/investment/:invName', async (req, res) => {
+router.delete('/:invName', async (req, res) => {
     // Request required data
     const userId = req.user._id;
     const{ invName } = req.params;

@@ -14,7 +14,7 @@ const port = process.env.PORT || 3000;
 // DATABASE CONNECTION
 const dbUrl = require('./mongoDbConn.database').DB_URL;
 const mongoUrl = process.env.MONGODB_URL;
-mongoose.connect(mongoUrl, {useNewUrlParser: true, useUnifiedTopology: true});
+mongoose.connect(mongoUrl, {useNewUrlParser: true, useUnifiedTopology: true, useFindAndModify: false});
 mongoose.connection.on('connected', () => {
     console.log('connected to mongoDB');
 });

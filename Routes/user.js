@@ -6,31 +6,39 @@ const router = Router();
 const UserModel = require('../Models/user.model');
 const bcrypt = require('bcrypt');
 
+
 /*
 **CHANGE USER PASSWORD
 */
 router.post('/changepassword', async (req, res) => {
-    const bcrypt = require('bcrypt');
+    // Request required data
     const { password, newPassword } = req.body;
     const userID = req.user._id;
 
+    // Validate input values
     if (!password) return res.json({message: 'input password'});
     if (!newPassword) return res.json({message: 'input new password'});
     if (password === newPassword) return res.json({message: 'New password must be different from current password'});
 
+    // Get user profile
     const user = await UserModel.findById(userID).exec();
-    const match = await bcrypt.compare(password, user.password);
-    const hashedPassword = await bcrypt.hash(newPassword, 10);
 
+    // Compare passwords
+    const match = await bcrypt.compare(password, user.password);
+
+    // Validate password match
     if(!match) return res.json({message: 'Incorrect password'});
 
+    // Hash new password
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+
     try{
+        // Update new password
         UserModel.findByIdAndUpdate(userID, {password: hashedPassword}, {new: true}, function (err, users) {
-            console.log('here 1');
-            if (err) return res.send(err);
-            if (!users) return res.json({message: 'No user'});
+            // Confirm query response
+            if (err || !users) return res.send(err);
             
-            console.log(users);
+            // Return response
             res.send({message: 'Password successfully changed'});
         });
     } catch (err) {

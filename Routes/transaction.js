@@ -5,10 +5,11 @@
  const router = Router();
  const UserModel = require('../Models/user.model');
 
+
 /*
- **USER TRANSACTION HISTORY
+ **USER TRANSACTION HISTORY || baseurl/api/transaction/
  */
- router.get('/transactionhistory', async (req, res) => {
+ router.get('/', async (req, res) => {
     // Request required data
     const userId = req.user._id;
 

@@ -38,11 +38,11 @@ const investmentSchema = schema({
         minLength: [1, 'Input a target investment amount'],
     },
     fundingOpeningDate: {
-        type: String,
+        type: Date,
         minLength: [1, 'Input a funding opening date']
     },
     fundingClosingDate: {
-        type: String,
+        type: Date,
         minLength: [1, 'Input a funding closing date']
     },
     admin: {
