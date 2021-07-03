@@ -12,8 +12,7 @@ const app = express();
 const port = process.env.PORT || 3000;
 
 // DATABASE CONNECTION
-const dbUrl = require('./mongoDbConn.database').DB_URL;
-const mongoUrl = process.env.MONGODB_URL;
+const mongoUrl = require('./mongoDbConn.database').DB_URL;
 mongoose.connect(mongoUrl, {useNewUrlParser: true, useUnifiedTopology: true, useFindAndModify: false});
 mongoose.connection.on('connected', () => {
     console.log('connected to mongoDB');
