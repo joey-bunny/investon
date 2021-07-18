@@ -42,7 +42,7 @@ userSchema = schema({
     }
 });
 
-userSchema.plugin(uniqueValidator);
+userSchema.plugin(uniqueValidator, { message: '{PATH} has already been used'});
 
 const UserModel = mongoose.model('users', userSchema);
 

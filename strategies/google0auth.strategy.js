@@ -16,14 +16,14 @@ passport.deserializeUser(function(user, done) {
 passport.use(new GoogleStrategy({
   clientID: process.env.G_CLIENT_ID,
   clientSecret: process.env.G_CLIENT_SECRET,
-  callbackURL: process.env.G_CALLBACK_URL
+  callbackURL: process.env.G_CALLBACK_URL_LIVE
   },
   function(accessToken, refreshToken, profile, done) {
     //search for email in database
     findUser = UserModel.findOne({'email': profile._json.email}, function(err, findUser){
 
       //if email doesn't exist create new user
-      if (findUser === null) {
+      if (err || findUser === null) {
         let newUser = new UserModel({
           name: profile._json.name,
           email: profile._json.email,

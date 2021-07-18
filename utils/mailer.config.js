@@ -1,34 +1,68 @@
-const nodemailer = require('nodemailer');
+const nodemailer = require("nodemailer")
 const user = process.env.MAILTRAP_USER;
 const pass = process.env.MAILTRAP_PASSWORD;
 
 const transport = nodemailer.createTransport({
-    host: "smtp.mailtrap.io",
-    port: 2525,
-    auth: {
-      user,
-      pass
-    }
-});
+  host: "smtp.mailtrap.io",
+  port: 2525,
+  auth: {
+    user,
+    pass,
+  },
+})
 
-// router.get('/mailer', async (req, res) => {
+const mailgunTransport = nodemailer.createTransport({
+  host: "smtp.mailgun.org",
+  port: 587,
+  auth: {
+    user: "postmaster@sandbox4783006fc7d14077ab4bce77f4ef4d1d.mailgun.org",
+    pass: "3b9aa9c225160e4152a3d2cda2656874-602cc1bf-dba72c58",
+  },
+})
 
-//     // send mail with defined transport object
-//   let info = await transport.sendMail({
-//     from: '"Investon" <admin@investon.com>', // sender address
-//     to: "joecliqs@gmail.com", // list of receivers
-//     subject: "Welcome ✔", // Subject line
-//     text: "Welcome to Investon and thankyou for registering. We are happy to have you on board", // plain text body
-//     html: "<b>Welcome to Investon and thankyou for registering. We are happy to have you on board</b>", // html body
-//   });
+function sendRegistrationMail(name, email, completeRegistrationUrl) {
+  transport.sendMail({
+    from: '"Investon" <admin@investon.com>', // sender address
+    to: email, // list of receivers
+    subject: "Confirm email ✔", // Subject line
+    text: `Hello ${name}, follow the link below to complete your registration`, // plain text
+    html: `<p>
+            <b>Hello ${name}, follow the link below to complete your registration</b><br>
+            <a href = '${completeRegistrationUrl}'>Confirm email</a>
+        </p>`, // html body
+  })
+}
 
-//   console.log("Message sent: %s", info.messageId);
-//   // Message sent: <b658f8ca-6296-ccf4-8306-87d57a0b4321@example.com>
+function sendVerificationMail (name, email, completeRegistrationUrl) {
+  // Send verification mail if user is unverified
+transport.sendMail({
+    from: '`Investon` <admin@investon.com>', // sender address
+    to: email, // list of receivers
+    subject: 'Confirm email ✔', // Subject line
+    text: `Hello ${name}, follow the link below to complete your registration`, // plain text body
+    html: `<p>
+              <b>Hello ${name}, follow the link below to complete your registration</b><br>
+              <a href = '${completeRegistrationUrl}'>Confirm email</a>
+            </p>`, // html body
+  })
+}
 
-//   // Preview only available when sending through an Ethereal account
-//   console.log("Preview URL: %s", nodemailer.getTestMessageUrl(info));
+function sendPasswordResetEmail (email, url) {
+  transport.sendMail({
+    from: '`Investon` <admin@investon.com>', // sender address
+    to: email, // list of receivers
+    subject: 'Password reset ✔', // Subject line
+    text: 'Hello user, follow the link below to reset your password', // plain text body
+    html: `<p>
+                    <b>Hello user, follow the link below to reset your password</b><br>
+                    <a href = '${url}'> Reset Password </a>
+                </p>`, // html body
+  })
+}
 
-//   return res.status(200).send({message: 'Mail sent'});
-// });
 
-module.exports = transport;
+module.exports = {
+  sendRegistrationMail,
+  sendVerificationMail,
+  sendPasswordResetEmail
+};
