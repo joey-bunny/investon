@@ -15,6 +15,10 @@ transactionSchema = schema({
         type: Number,
         minLength: [1, 'Input investment amount']
     },
+    transactionType: {
+        type:String,
+        enum: ['deposit', 'withdrawal']
+    },
     timestamp: {
         type: Date,
         default: Date.now()

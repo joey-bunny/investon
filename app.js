@@ -42,6 +42,7 @@ const authRoute = require('./Routes/auth')
 const userRoute = require('./Routes/user')
 const investmentRoute = require('./Routes/investment')
 const transactionRoute = require('./Routes/transaction')
+const walletRoute = require('./Routes/wallet')
 
 const jwt = require('jsonwebtoken')
 const { generateJWT } = require('./utils/functions')
@@ -74,6 +75,8 @@ app.use('/auth', authRoute)
 app.use('/users', passport.authenticate('jwt', { session: false }), userRoute)
 app.use('/investments', passport.authenticate('jwt', { session: false }), investmentRoute)
 app.use('/transactions', passport.authenticate('jwt', { session: false }), transactionRoute)
+app.use('/wallet', passport.authenticate('jwt', { session: false }), walletRoute)
+
 
 
 app.listen(port, () => {console.log(`Example app listening at http://localhost:${port}`)})

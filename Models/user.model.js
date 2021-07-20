@@ -14,6 +14,11 @@ userSchema = schema({
         minLength: [5, 'Email must contain at least 5 character'],
         maxLength: [30, 'Email must not contain more than 30 character'],
     },
+    username: {
+        type: String,
+        unique: true,
+        minLength: [1, 'username must contain at least 1 character']
+    },
     mobile: {
         type: Number,
         unique: [true, 'Account already exists with that mobile number'],

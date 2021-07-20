@@ -1,8 +1,7 @@
 const JwtStrategy = require('passport-jwt').Strategy;
 const ExtractJwt = require('passport-jwt').ExtractJwt;
 const passport = require('passport');
-passport.use(new JwtStrategy(
-    {
+passport.use(new JwtStrategy({
         secretOrKey: process.env.PASSPORT_SIGNATURE,
         jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken()
     },

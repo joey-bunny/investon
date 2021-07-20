@@ -1,48 +1,18 @@
 /*
  **INVESTMENT ROUTER
  */
+const axios = require('axios')
 const { Router } = require('express')
 const router = Router()
 const InvestmentModel = require('../Models/investment.model')
 const UserModel = require('../Models/user.model')
 const TransactionModel = require('../Models/transaction.model')
-
-/*
- **CHECK MY CURRENT INVESTMENTS ROUTE
- */
-router.get('/', async (req, res) => {
-  try {
-    // Request required data
-    const userId = req.user._id;
-
-    // Query UserModel to get user data
-    const userData = await UserModel.findById(userId).populate([
-      {
-        path: 'transactions',
-        populate: [
-          { path: 'userId', select: 'name', model: 'users' },
-          { path: 'investmentId', select: 'name', model: 'investments' },
-        ],
-      },
-    ])
-
-    if (!userData) return res.status(400).send({ statusCode: 400, message: 'User not found' })
-    // Return requested data
-    return res.status(200).send({
-      statusCode: 200,
-      message: 'User investment data found',
-      data: userData
-    })
-  } catch (err) {
-    // Return error response
-    return err
-  }
-})
+const baseUrl = process.env.BASE_URL
 
 /*
  **CREATE INVESTMENT PLAN ROUTE
  */
-router.post('/', async (req, res) => {
+ router.post('/', async (req, res) => {
   // {
   //     'name': 'AIG Bonds',
   //     'description': 'AIG Bonds is an investment package that uses your funds to trade bonds',
@@ -76,24 +46,36 @@ router.post('/', async (req, res) => {
     const fundingOpeningDateInput = new Date(fundingOpeningDate).toISOString()
     const fundingClosingDateInput = new Date(fundingClosingDate).toISOString()
 
-    console.log( fundingClosingDate, fundingOpeningDateInput, fundingClosingDateInput)
-  
     //Insert data into investment model
     InvestmentModel.create({ name, description, minInvestment, expectedReturn, returnFrequency, investmentCurrency, investmentDuration, targetAmount, fundingOpeningDate: fundingOpeningDateInput, fundingClosingDate: fundingClosingDateInput, admin: userId },
       function (err, investment) {
         // Confirm query result
-        if (err || !investment) return res.status(400).send({ statusCode: 400, message: err })
+        if (err || !investment) {
+          // Validate if the error is a mongoose error
+          if (err.name === "ValidationError") {
+            let errors = {};
+
+            Object.keys(err.errors).forEach((key) => {
+              errors[key] = err.errors[key].message;
+            })
+
+            // Return error response
+            return res.status(400).send({
+              statusCode: 400,
+              message: errors
+            })
+          }
+          // Return error response
+          return res.status(400).send({ statusCode: 400, message: err })
+        }
 
         // Insert investment id to user model
         const investmentID = investment._id;
 
-        console.log('60f311078e13fd059cf09214', userId)
         UserModel.findByIdAndUpdate( userId, { $push: { investments: investmentID } }, function (err, docs) {
-          console.log(docs)
           // Confirm query result
           if (err || !docs) return res.status(400).send({ statusCode: 400, message: err })
 
-          console.log('----------------------------------')
           // Return response
           return res.status(200).send({
             statusCode: 200,
@@ -103,30 +85,61 @@ router.post('/', async (req, res) => {
         })
     })
   } catch (err) {
-    // Return error if any
-    return res.status(400).send(err)
+    // Validate if the error is a mongoose error
+    if (err.name === "ValidationError") {
+      let errors = {};
+
+      Object.keys(err.errors).forEach((key) => {
+        errors[key] = err.errors[key].message;
+      })
+
+      // Return error response
+      return res.status(400).send({
+        statusCode: 400,
+        message: errors
+      })
+    }
+    // Return error response
+    return res.status(500).send({
+      statusCode: 500,
+      message: 'Internal server error'
+    })
   }
 })
 
 /*
- **INVEST ROUTE
+ **FUND INVESTMENT ROUTE
  */
-router.post('/invest', async (req, res) => {
+router.post('/:id', async (req, res) => {
   try {
     // Request required data
-    const { invName, amount } = req.body;
+    const { amount } = req.body;
+    const id = req.params.id
+    const transactionType = 'withdrawal'
+    const authorization = req.headers.authorization
 
     // Confirm User Input
-    if (!invName) return res.status(400).send({ statusCode: 400, message: 'insert investment name' })
     if (!amount) return res.status(400).send({ statusCode: 400, message: 'insert investment amount' })
 
     // Get Investment From Database
-    const investment = await InvestmentModel.findOne({ name: invName })
+    const investment = await InvestmentModel.findById(id)
       .populate({ path: 'transactions', select: 'amount' })
       .populate({ path: 'admin', select: 'name' })
 
     //Confirm Investment Existence
     if (!investment) return res.status(400).send({ statusCode: 400, message: 'Investment not found' })
+
+    // Confirm user has sufficient wallet balance
+    const wallet = await axios({
+      method: 'get',
+      url: `${baseUrl}/wallet`,
+      headers: {Authorization: authorization }
+    })
+
+    const balance = wallet.data.data
+
+    if ( balance < amount ) return res.status(400).send({ statusCode: 400, message: 'Insufficient funds' })
+
 
     let invTotal = [];
     const userId = req.user._id;
@@ -156,8 +169,9 @@ router.post('/invest', async (req, res) => {
     if (amount < minInvestment) return res.status(400).send({ statusCode: 400, message: `Minimum investment amount is ${minInvestment}` })
     if (currentQuota >= investmentTarget) return res.status(400).send({ statusCode: 400, message: `This investment plan is closed as target quota has been met.` })
 
+    
     //Store Transaction In Database
-    const transaction = await TransactionModel.create({ userId, investmentId, amount })
+    const transaction = await TransactionModel.create({ userId, investmentId, amount, transactionType })
 
     const transactionId = transaction._id;
 
@@ -182,13 +196,13 @@ router.post('/invest', async (req, res) => {
       )
 
     // Update Investor And Transaction In Investment Model if user does not exist in investment plan
-    if (checkInvestor === -1) await InvestmentModel.findOneAndUpdate( { name: invName },
+    if (checkInvestor === -1) await InvestmentModel.findByIdAndUpdate(id,
         { $push: { investors: userId, transactions: transactionId } },
         { new: true }
       )
 
     // Update only Transaction In Investment Model if user exist in investment plan
-    if (checkInvestor !== -1) await InvestmentModel.findOneAndUpdate( { name: invName },
+    if (checkInvestor !== -1) await InvestmentModel.findByIdAndUpdate(id,
         { $push: { transactions: transactionId } },
         { new: true }
       )
@@ -196,7 +210,7 @@ router.post('/invest', async (req, res) => {
     // Return Response
     return res.status(200).send({
       statusCode: 200,
-      message: `You just successfully invested ${amount} into ${invName}`,
+      message: `You just successfully invested ${amount} into ${id}`,
     })
   } catch (err) {
     // Return response error
@@ -205,25 +219,92 @@ router.post('/invest', async (req, res) => {
 })
 
 /*
- **VIEW INVESTMENT
- */
-router.get('/:invName', async (req, res) => {
+**FETCH MY CURRENT INVESTMENTS ROUTE
+*/
+router.get('/', async (req, res) => {
   try {
     // Request required data
-    const { invName } = req.params;
+    const userId = req.user._id;
+
+    // Query UserModel to get user data
+    const userData = await UserModel.findById(userId).populate({
+      path: 'investments',
+      select: '_id, name'
+    }).select([ 'investments', '-_id' ])
+
+    const investments = userData.investments
+
+    if (!userData) return res.status(400).send({ statusCode: 400, message: 'User not found' })
+    // Return requested data
+    return res.status(200).send({
+      statusCode: 200,
+      message: 'User investment data found',
+      data: investments
+    })
+  } catch (err) {
+    // Return error response
+    return err
+  }
+})
+
+/*
+**FETCH SINGLE USER INVESTMENT
+*/
+router.get('/:userId/:id', async ( req, res) => {
+  try{
+    // Request required data
+    const { userId, id } = req.params
+
+    // Query UserModel to get user data
+    const userData = await UserModel.findById(userId).populate({
+      path: 'investments',
+      select: '_id, name',
+      match: { _id: id }
+    }).populate({
+      path: 'transactions',
+      match: { investmentId: id },
+      select: ['amount', 'timestamp']
+    }).select([ 'investments', 'transactions', '-_id' ])
+
+    // Verify query response
+    if (!userData) return res.status(400).send({ statusCode: 400, message: 'Unable to get data'})
+
+    const investment = userData.investments[0]
+    const transactions = userData.transactions
+    const data = { investment, transactions }
+    // Return response
+    return res.status(200).send({
+      statusCode: 200,
+      message: 'User data found',
+      data
+    })
+
+  } catch (err) {
+    // Return error response
+    return err
+  }
+})
+
+/*
+ **FETCH SINGLE INVESTMENT
+ */
+router.get('/:id', async (req, res) => {
+  try {
+    // Request required data
+    const { id } = req.params;
     let invTotal = [];
 
-    // Validate input
-    if (!invName || invName == null) return res.status(400).send({ message: 'Input investment name' })
-
     // Find investment in database and populate data
-    const inv = await InvestmentModel.findOne({ name: invName })
+    const inv = await InvestmentModel.findById(id)
       .populate({ path: 'transactions', select: 'amount' })
       .populate({ path: 'investors', select: 'name' })
       .populate({ path: 'admin', select: 'name' })
 
     // Confirm investment existence in database
-    if (!inv) return res.status(400).send({ statusCode: 400, message: `${invName} Investment not found` })
+    if (!inv) return res.status(400).send({
+      statusCode: 400,
+      message: `Investment plan not found`
+    })
 
     // Store investment data in variables
     const admin = inv.admin;
@@ -282,27 +363,13 @@ router.get('/:invName', async (req, res) => {
     return res.status(200).send({
       statusCode: 200,
       message: 'investment found',
-      data: data
+      data
     })
   } catch (err) {
     // Return error response
     return err
   }
 })
-
-/*
- **GET INVESTMENT BY NAME ROUTE
- */
-// router.post('/investment', async (req, res) => {
-//     // Request required data
-//     const { invName } = req.body;
-
-//     // Get requested investment data
-//     const investment = await InvestmentModel.findOne({name: invName}).populate([{ path: 'investors', select: 'name'}])
-
-//     // Return requested data
-//     return res.status(200).send({message: investment})
-// })
 
 /*
  **DELETE INVESTMENT ROUTE

@@ -63,7 +63,7 @@ const investmentSchema = schema({
     }
 });
 
-investmentSchema.plugin(uniqueValidator);
+investmentSchema.plugin(uniqueValidator, { message: '{PATH} has already been used' });
 
 const InvestmentModel = mongoose.model('investments', investmentSchema);
 

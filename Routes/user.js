@@ -15,7 +15,12 @@ router.get('/', async (req, res) => {
     const userID = req.user._id;
 
     // Get user details
-    const user = await UserModel.findById(userID).select('-password')
+    const user = await UserModel.findById(userID).select([ '-password', '-transactions' ])
+
+    if (!user) return res.status(400).send({
+      statusCode: 400,
+      message: 'User not found'
+    })
 
     // Return response
     return res.status(200).send({
@@ -85,15 +90,18 @@ router.post('/changepassword', async (req, res) => {
     // Update new password
     UserModel.findByIdAndUpdate( userID, { password: hashedPassword }, { new: true }, function (err, users) {
       // Confirm query response
-      if (err || !users) return res.send(err)
+      if (err || !users) return res.status(400).send({
+        statusCode: 400,
+        message: err || 'User not found'
+      })
 
       // Return response
       return res.status(200).send({
         statusCode: 200,
         message: 'Password successfully changed'
       })
-    }
-    )
+    })
+
   } catch (err) {
     // Return response
     return err;
@@ -114,14 +122,16 @@ router.post('/changemobile', async (req, res) => {
   try {
     // Update user data
     UserModel.findByIdAndUpdate( userID, { mobile: mobile }, { new: true }, function (err, user) {
-        // Confirm query response
-        if (err) return res.status(400).send({statusCode: 400, message: err })
-        if (!user) return res.status(400).send({ statusCode: 400, message: 'User not found' })
+      // Confirm query response
+      if (err) return res.status(400).send({statusCode: 400, message: err })
+      if (!user) return res.status(400).send({ statusCode: 400, message: 'User not found' })
 
-        // Return response
-        return res.status(200).send({ statusCode: 200, message: 'Mobile number changed successfully' })
-      }
-    )
+      // Return response
+      return res.status(200).send({
+        statusCode: 200,
+        message: 'Mobile number changed successfully'
+      })
+    })
   } catch (err) {
     // Return response
     res.send(err)

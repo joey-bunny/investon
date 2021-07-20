@@ -202,6 +202,7 @@ router.get('/loginsuccess/:token', async (req, res) => {
  ** Local Login route
  */
 router.post('/login', function (req, res) {
+  try {
   // Authenticate request using passport local
   passport.authenticate('local', { session: false }, (err, user, info) => {
     // Validate query request and return any error
@@ -209,29 +210,32 @@ router.post('/login', function (req, res) {
       statusCode: 400,
       message: 'Invalid credentials'
     })
-
-    console.log(user)
     
     // Attempt to login the user if credentials are correct
     req.login(user, { session: false }, (err) => {
       // Return error response if any
       if (err) return res.status(400).send(err)
 
-      const {password, ...newUser} = user
+      // Select required JWT payload
+      const {_id, name, email } = user
+      const users = { _id, name, email}
 
       // generate token
-      const token = generateJWT(user)
+      const token = generateJWT(users)
 
       // Return response
       return res.status(200).send({
         statusCode: 200,
         message: 'Login successful',
-        data: {
-          token
-        }
+        data: { token }
       })
     })
   })(req, res)
+
+} catch (err) {
+  // Return error response
+  return err
+}
 })
 
 /*
