@@ -35,7 +35,7 @@ router.post('/register', async (req, res) => {
   const hashedPassword = await bcrypt.hash(password, 10)
 
     // Store user in database
-    const user = await UserModel.create({ name, email, mobile, password: hashedPassword })
+    const user = await UserModel.create({ name, email, mobile, username, password: hashedPassword })
 
     const userId = user._id
 
