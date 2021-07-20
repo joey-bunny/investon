@@ -23,7 +23,7 @@ const code = randomNumber ()
 router.post('/register', async (req, res) => {
   try {
   // Request required credentials
-  const { name, email, mobile, password } = req.body
+  const { name, email, mobile, username, password } = req.body
 
   // Verify request
   // if (!name || name === null) return res.status(400).send({ statusCode: 400, message: 'username required' })
@@ -36,6 +36,12 @@ router.post('/register', async (req, res) => {
 
     // Store user in database
     const user = await UserModel.create({ name, email, mobile, username, password: hashedPassword })
+
+    // Validate query success
+    if(!user) return res.status(400).send({
+      statusCode: 400,
+      message: 'Unable to create user'
+    })
 
     const userId = user._id
 
