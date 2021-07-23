@@ -53,5 +53,25 @@ async function userDataSeed () {
   return userData
 }
 
+function randomUser () {
+  const i = Math.floor(Math.random() * (9 - 0 + 1)) + 0
 
-module.exports = { userDataSeed, randomNumber, generateJWT }
+  const fNameArr = [ 'ares', 'hermes', 'zeus','dionysius', 'hades', 'poseidon', 'apollo', 'athena', 'hera', 'athemis' ]
+  const lNameArr = [ 'mecury', 'mars', 'gaia', 'venus', 'saturn', 'jupiter', 'uranus', 'neptune', 'pluto', 'cronos' ]
+  const emailArr = [ 'ares@gmail.com', 'hermes@gmail.com', 'zeus@gmail.com', 'dionysius@gmail.com', 'hades@gmail.com', 'poseidon@gmail.com', 'apollo@gmail.com', 'athena@gmail.com', 'hera@gmail.com', 'athemis@gmail.com']
+  const mobileArr = [ 09020790850, 09020790841, 09020790842, 09020790843, 09020790844, 09020790845, 09020790846, 09020790847, 09020790848, 09020790849 ]
+  const password = 'secret'
+
+  const payload = {
+    name: `${fNameArr[i]} ${lNameArr[i]}`,
+    email: emailArr[i],
+    mobile: mobileArr[i],
+    username: fNameArr[i],
+    password: password,
+  }
+
+  return payload
+}
+
+
+module.exports = { userDataSeed, randomNumber, generateJWT, randomUser }

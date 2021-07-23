@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "mocha --exit",
+    "test": "mocha --timeout 20000, --exit",
     "start": "start"
   },
   "keywords": [],
@@ -25,6 +25,7 @@
     "g": "^2.0.1",
     "joi": "^17.4.0",
     "jsonwebtoken": "^8.5.1",
+    "mocha": "^9.0.2",
     "mongodb": "^3.6.9",
     "mongoose": "^5.12.13",
     "mongoose-unique-validator": "^2.0.3",

@@ -26,14 +26,13 @@ router.post('/register', async (req, res) => {
   const { name, email, mobile, username, password } = req.body
 
   // Verify request
-  // if (!name || name === null) return res.status(400).send({ statusCode: 400, message: 'username required' })
-  // if (!email || email === null) return res.status(400).send({ statusCode: 400, message: 'email required' })
-  // if (!mobile || mobile === null) return res.status(400).send({ statusCode: 400, message: 'mobile required' })
-  // if (!password || password === null) return res.status(400).send({ statusCode: 400, message: 'password required' })
+  if (!name || name === null) return res.status(400).send({ statusCode: 400, message: 'username required' })
+  if (!email || email === null) return res.status(400).send({ statusCode: 400, message: 'email required' })
+  if (!mobile || mobile === null) return res.status(400).send({ statusCode: 400, message: 'mobile required' })
+  if (!password || password === null) return res.status(400).send({ statusCode: 400, message: 'password required' })
 
   // Hash password
   const hashedPassword = await bcrypt.hash(password, 10)
-
     // Store user in database
     const user = await UserModel.create({ name, email, mobile, username, password: hashedPassword })
 
@@ -42,7 +41,6 @@ router.post('/register', async (req, res) => {
       statusCode: 400,
       message: 'Unable to create user'
     })
-
     const userId = user._id
 
     // Store verification code
@@ -53,7 +51,7 @@ router.post('/register', async (req, res) => {
 
     // Send email verification mail with defined transport object
     const completeRegistrationUrl = `${complete_local_reg_uri}/${userId}/${code}`
-    
+
     sendRegistrationMail(name, email, completeRegistrationUrl)//Send the registration emaiil
 
     // Return response

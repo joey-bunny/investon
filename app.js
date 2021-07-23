@@ -46,6 +46,7 @@ const walletRoute = require('./Routes/wallet')
 
 const jwt = require('jsonwebtoken')
 const { generateJWT } = require('./utils/functions')
+const UserModel = require('./Models/user.model')
 
 // ROUTES
 app.get('/', async (req, res) => {
@@ -55,15 +56,17 @@ app.get('/', async (req, res) => {
         // const secretKey = process.env.PASSPORT_SIGNATURE
 
         const payload = { name: 'uche' }
+        const datas = await UserModel.find()
 
         const tokens = generateJWT(payload)
         // const decode = jwt.verify(token, secretKey)
-    
+
         return res.status(200).send({
             tokens,
             // decode,
             // all,
-            message: 'Welcome to Investon'
+            message: 'Welcome to Investon',
+            datas
         })
     } catch (err) {
         return err
@@ -78,5 +81,6 @@ app.use('/transactions', passport.authenticate('jwt', { session: false }), trans
 app.use('/wallet', passport.authenticate('jwt', { session: false }), walletRoute)
 
 
-
 app.listen(port, () => {console.log(`Example app listening at http://localhost:${port}`)})
+
+module.exports = app
