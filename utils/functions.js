@@ -32,7 +32,7 @@ async function userDataSeed () {
   const fNameArr = [ 'ares', 'hermes', 'zeus','dionysius', 'hades', 'poseidon', 'apollo', 'athena', 'hera', 'athemis' ]
   const lNameArr = [ 'mecury', 'mars', 'gaia', 'venus', 'saturn', 'jupiter', 'uranus', 'neptune', 'pluto', 'cronos' ]
   const emailArr = [ 'ares@gmail.com', 'hermes@gmail.com', 'zeus@gmail.com', 'dionysius@gmail.com', 'hades@gmail.com', 'poseidon@gmail.com', 'apollo@gmail.com', 'athena@gmail.com', 'hera@gmail.com', 'athemis@gmail.com']
-  const mobileArr = [ 09020790850, 09020790841, 09020790842, 09020790843, 09020790844, 09020790845, 09020790846, 09020790847, 09020790848, 09020790849 ]
+  const mobileArr = [ 9020790850, 9020790841, 9020790842, 9020790843, 9020790844, 9020790845, 9020790846, 9020790847, 9020790848, 9020790849 ]
   const password = 'secret'
   const hashedPassword = await bcrypt.hash(password, 10)
 
@@ -59,7 +59,8 @@ function randomUser () {
   const fNameArr = [ 'ares', 'hermes', 'zeus','dionysius', 'hades', 'poseidon', 'apollo', 'athena', 'hera', 'athemis' ]
   const lNameArr = [ 'mecury', 'mars', 'gaia', 'venus', 'saturn', 'jupiter', 'uranus', 'neptune', 'pluto', 'cronos' ]
   const emailArr = [ 'ares@gmail.com', 'hermes@gmail.com', 'zeus@gmail.com', 'dionysius@gmail.com', 'hades@gmail.com', 'poseidon@gmail.com', 'apollo@gmail.com', 'athena@gmail.com', 'hera@gmail.com', 'athemis@gmail.com']
-  const mobileArr = [ 09020790850, 09020790841, 09020790842, 09020790843, 09020790844, 09020790845, 09020790846, 09020790847, 09020790848, 09020790849 ]
+  const mobileArr = [ 9020790850, 9020790841, 9020790842, 9020790843, 9020790844, 9020790845, 9020790846, 9020790847, 9020790848, 9020790849 ]
+
   const password = 'secret'
 
   const payload = {

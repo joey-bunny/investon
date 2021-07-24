@@ -63,8 +63,6 @@ app.get('/', async (req, res) => {
 
         return res.status(200).send({
             tokens,
-            // decode,
-            // all,
             message: 'Welcome to Investon',
             datas
         })

@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "mocha --timeout 20000, --exit",
+    "test": "jest --detectOpenHandles",
     "start": "start"
   },
   "keywords": [],
