@@ -6,7 +6,7 @@ const router = Router()
 const UserModel = require('../Models/user.model')
 const bcrypt = require('bcrypt')
 
-/*
+/**
  **VIEW MY PROFILE
  */
 router.get('/', async (req, res) => {
