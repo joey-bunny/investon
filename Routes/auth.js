@@ -140,6 +140,7 @@ router.get('/completeregistration/:userId/:code', async (req, res) => {
       message: 'Update failed'
     })
 
+    await verifyCode.delete()
     // Create token
     const token = jwt.sign({ updateUser }, process.env.PASSPORT_SIGNATURE, { expiresIn: '1d' })
 

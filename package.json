@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "jest --detectOpenHandles",
+    "test": "mocha --recursive --exit --timeout 30000",
     "start": "start"
   },
   "keywords": [],
