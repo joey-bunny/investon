@@ -34,7 +34,7 @@ router.get('/', async (req, res) => {
   }
 })
 
-/*
+/**
  **VIEW OTHER USERS PROFILE
  */
 router.get('/:username', async (req, res) => {
