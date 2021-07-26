@@ -50,25 +50,9 @@ const UserModel = require('./Models/user.model')
 
 // ROUTES
 app.get('/', async (req, res) => {
-    try{
-        // const all = req.headers.authorization
-        // const token = all.replace('Bearer ', '')
-        // const secretKey = process.env.PASSPORT_SIGNATURE
-
-        const payload = { name: 'uche' }
-        const datas = await UserModel.find()
-
-        const tokens = generateJWT(payload)
-        // const decode = jwt.verify(token, secretKey)
-
-        return res.status(200).send({
-            tokens,
-            message: 'Welcome to Investon',
-            datas
-        })
-    } catch (err) {
-        return err
-    }
+    return res.status(200).send({
+        message: 'Welcome to Investon'
+    })
 })
 
 
