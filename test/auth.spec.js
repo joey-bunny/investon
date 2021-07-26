@@ -11,6 +11,10 @@ const email = data.email
 const password = data.password
 const loginData = { email, password }
 const amount = investment.minInvestment
+const username = data.username
+const mobile = data.mobile
+const changePasswordData = { password, newPassword: 'secrets' }
+const changeMobileData = { mobile }
 
 let token, id, code, invId
 
@@ -119,6 +123,48 @@ describe('Test Suites', function () {
             expect(res.statusCode).to.equal(200)
             expect(res.body.message).to.equal('investment found')
             expect(res.body.data).to.not.equal(null)
+
+            done()
+        }).catch((err) => done(err))
+    })
+
+    it('Assert Fetch user profile route works', function (done) {
+        request(app).get(`/users`).set({ Authorization: `Bearer ${token}`}).then( async (res) => {
+            // console.log('!!!!!!!!!!!!!!!!!!!!!! Fetch user profile')
+            expect(res.statusCode).to.equal(200)
+            expect(res.body.message).to.equal('User profile found')
+            expect(res.body.data).to.not.equal(null)
+
+            done()
+        }).catch((err) => done(err))
+    })
+
+    it('Assert Fetch a user profile route works', function (done) {
+        request(app).get(`/users/${username}`).set({ Authorization: `Bearer ${token}`}).then( async (res) => {
+            // console.log('!!!!!!!!!!!!!!!!!!!!!! Fetch a user profile')
+            expect(res.statusCode).to.equal(200)
+            expect(res.body.message).to.equal('User profile found')
+            expect(res.body.data).to.not.equal(null)
+
+            done()
+        }).catch((err) => done(err))
+    })
+
+    it('Assert Change password route works', function (done) {
+        request(app).post(`/users/changepassword`).send(changePasswordData).set({ Authorization: `Bearer ${token}`}).then( async (res) => {
+            // console.log('!!!!!!!!!!!!!!!!!!!!!! Change user password')
+            expect(res.statusCode).to.equal(200)
+            expect(res.body.message).to.equal('Password successfully changed')
+
+            done()
+        }).catch((err) => done(err))
+    })
+
+    it('Assert Change mobile number route works', function (done) {
+        request(app).post(`/users/changemobile`).send(changeMobileData).set({ Authorization: `Bearer ${token}`}).then( async (res) => {
+            // console.log('!!!!!!!!!!!!!!!!!!!!!! Change user password')
+            expect(res.statusCode).to.equal(200)
+            expect(res.body.message).to.equal('Mobile number changed successfully')
 
             done()
         }).catch((err) => done(err))
