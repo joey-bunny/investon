@@ -37,13 +37,13 @@ router.get('/', async (req, res) => {
 /*
  **VIEW OTHER USERS PROFILE
  */
-router.get('/:userName', async (req, res) => {
+router.get('/:username', async (req, res) => {
   try {
     // Request required data
-    const { userName } = req.params;
+    const { username } = req.params;
 
     // Find user
-    const user = await UserModel.findOne({ name: userName }).select([ '-password', '-transactions', '-_id' ])
+    const user = await UserModel.findOne({ username: username }).select([ '-password', '-transactions', '-_id' ])
 
     // Confirm if user exist
     if (!user) return res.status(400).send({ statusCode: 400, message: 'User not found' })
