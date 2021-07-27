@@ -7,9 +7,46 @@ const passport = require('passport')
 const cors = require('cors')
 const bodyParser = require('body-parser')
 const mongoose = require('mongoose')
+const websocket = require('ws')
+
 
 const app = express()
 const port = process.env.PORT || 3000
+
+// const wss = new websocket.Server({
+//     port: 4000
+// })
+// wss.on('connection', (ws) => {
+//     ws.send('Welcome to the chat, enjoy :)')
+
+//     ws.on('message', (data) => {
+//         let message
+
+//         try {
+//             message = JSON.parse(data)
+//         } catch (e) {
+//             sendError(ws, 'Wrong format')
+
+//             return
+//         }
+//         if (message.type === 'NEW_MESSAGE') {
+//             wss.clients.forEach((client) => {
+//                 if (client !== ws && client.readyState === websocket.OPEN) {
+//                     client.send(data)
+//                 }
+//             })
+//         }
+//     })
+// })
+
+// const sendError = (ws, message) => {
+//     const messageObject = {
+//         type: 'ERROR',
+//         payload: message,
+//     }
+
+//     ws.send(JSON.stringify(messageObject))
+// }
 
 // DATABASE CONNECTION
 const mongoUrl = require('./mongoDbConn.database').DB_URL
