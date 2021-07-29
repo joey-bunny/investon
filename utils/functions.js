@@ -1,7 +1,7 @@
 const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken');
-const UserModel = require('../Models/user.model');
-const VerifCodeModel = require('../Models/verification.code.model');
+const UserModel = require('../models/user.model');
+const VerifCodeModel = require('../models/verification.code.model');
 
 /*
 ** GENERATE A JWT

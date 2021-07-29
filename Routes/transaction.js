@@ -2,9 +2,9 @@
  **TRANSACTION ROUTER
  */
 const { Router } = require('express');
-const TransactionModel = require('../Models/transaction.model');
+const TransactionModel = require('../models/transaction.model');
 const router = Router();
-const UserModel = require('../Models/user.model');
+const UserModel = require('../models/user.model');
 
 /*
  **USER TRANSACTION HISTORY || baseurl/api/transaction/

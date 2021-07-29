@@ -75,15 +75,12 @@ require('./Strategies/authJwt.strategy')
 **ROUTES
 */
 // ROUTE FILES POINTER
-const authRoute = require('./Routes/auth')
-const userRoute = require('./Routes/user')
-const investmentRoute = require('./Routes/investment')
-const transactionRoute = require('./Routes/transaction')
-const walletRoute = require('./Routes/wallet')
-
-const jwt = require('jsonwebtoken')
-const { generateJWT } = require('./utils/functions')
-const UserModel = require('./Models/user.model')
+const authRoute = require('./routes/auth')
+const userRoute = require('./routes/user')
+const planRoute = require('./routes/plan')
+const investmentRoute = require('./routes/investment')
+const transactionRoute = require('./routes/transaction')
+const walletRoute = require('./routes/wallet')
 
 // ROUTES
 app.get('/', async (req, res) => {
@@ -95,6 +92,7 @@ app.get('/', async (req, res) => {
 
 app.use('/auth', authRoute)
 app.use('/users', passport.authenticate('jwt', { session: false }), userRoute)
+app.use('/plans', passport.authenticate('jwt', { session: false }), planRoute)
 app.use('/investments', passport.authenticate('jwt', { session: false }), investmentRoute)
 app.use('/transactions', passport.authenticate('jwt', { session: false }), transactionRoute)
 app.use('/wallet', passport.authenticate('jwt', { session: false }), walletRoute)

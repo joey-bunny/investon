@@ -3,7 +3,7 @@
  */
 const { Router } = require('express');
 const router = Router();
-const UserModel = require('../Models/user.model')
+const UserModel = require('../models/user.model')
 
 router.get('/', async (req, res) => {
   // Request required data

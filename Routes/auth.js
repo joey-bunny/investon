@@ -7,8 +7,8 @@ const { userDataSeed, randomNumber, generateJWT } = require('../utils/functions'
 
 const router = Router()
 
-const UserModel = require('../Models/user.model')
-const VerifCodeModel = require('../Models/verification.code.model')
+const UserModel = require('../models/user.model')
+const VerifCodeModel = require('../models/verification.code.model')
 
 
 const complete_local_reg_uri = process.env.COMPLETE_LOCAL_REG_URL
@@ -83,13 +83,13 @@ router.post('/register', async (req, res) => {
 /*
  ** COMPLETE REGISTRATION ROUTE
  */
-router.get('/completeregistration/:userId/:code', async (req, res) => {
+router.get('/completeregistration/:userId/:verificationCode', async (req, res) => {
   try {
     // Request required data
-    const { userId, code } = req.params
+    const { userId, verificationCode } = req.params
 
     // Check for verification code in database
-    const verifyCode = await VerifCodeModel.findOne({ code: code })
+    const verifyCode = await VerifCodeModel.findOne({ code: verificationCode })
 
     // Confirm verification code existence
     if (!verifyCode) {
@@ -112,6 +112,12 @@ router.get('/completeregistration/:userId/:code', async (req, res) => {
         statusCode: 400,
         message: 'Your account has already been verified. Please login to proceed',
       })
+
+      // Store verification code
+      const storeCode = await VerifCodeModel.create({ userId, code })
+
+      // Confirm storage of verification code
+      if (!storeCode) return res.status(400).send({ statusCode: 400, message: 'error' })
 
       const completeRegistrationUrl = `${complete_local_reg_uri}/${userId}/${code}`
       

@@ -18,7 +18,7 @@ const investmentSchema = schema({
         // minLength: [1, 'Investment description must contain at least 5 character'],
     },
     expectedReturn: {
-        type: String,
+        type: Number,
         minLength: [1, 'Input a minimum expected return'],
     },
     returnFrequency: {
