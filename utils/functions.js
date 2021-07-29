@@ -42,12 +42,15 @@ async function userDataSeed () {
     const name = fNameArr[i] + lNameArr[i]
     const email = emailArr[i]
     const mobile = mobileArr[i]
+    const username = `${fNameArr[i]}${lNameArr[i]}`
     const datas = {
-      name: name,
-      email: email,
-      mobile: mobile,
+      name,
+      email,
+      mobile,
+      username,
       password: hashedPassword,
-    };
+      verified: true
+    }
 
     userData.push(datas)
   }

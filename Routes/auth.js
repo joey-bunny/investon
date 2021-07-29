@@ -359,24 +359,41 @@ router.post('/completeresetpassword/:userId/:code', async (req, res) => {
  ** USER SEED
  */
 router.post('/userseed', async (req, res) => {
-  // Generate user data
-  const userdata = await userDataSeed()
-
   try {
+    // Generate user data
+    const userData = await userDataSeed()
+
     // Insert user data into database
     const userInsert = await UserModel.insertMany(userData)
 
     // Validate user entry
-    if (err || !userInsert) return res.status(400).send(err)
+    if (!userInsert) return res.status(400).send(err)
 
     // Return response
     return res.status(200).send({
       statusCode: 200,
       message: 'users seeded successfully'
     })
-  } catch (error) {
+  } catch (err) {
+    // Validate if the error is a mongoose error
+    if (err.name === "ValidationError") {
+      let errors = {};
+
+      Object.keys(err.errors).forEach((key) => {
+        errors[key] = err.errors[key].message;
+      })
+
+      // Return error response
+      return res.status(400).send({
+        statusCode: 400,
+        message: errors
+      })
+    }
     // Return error response
-    res.status(400).send(error)
+    return res.status(500).send({
+      statusCode: 500,
+      message: 'Internal server error'
+    })
   }
 })
 
