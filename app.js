@@ -68,8 +68,8 @@ app.use(passport.initialize())
 
 // PASSPORT STRATEGIES
 require('./strategies/google0auth.strategy')
-require('./Strategies/LocalStrategy')
-require('./Strategies/authJwt.strategy')
+require('./strategies/localStrategy')
+require('./strategies/authJwt.strategy')
 
 /*
 **ROUTES
