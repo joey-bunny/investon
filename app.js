@@ -85,6 +85,7 @@ const walletRoute = require('./routes/wallet')
 // ROUTES
 app.get('/', async (req, res) => {
     return res.status(200).send({
+        name: 'test Route',
         message: 'Welcome to Investon'
     })
 })
