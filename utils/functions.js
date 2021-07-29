@@ -31,8 +31,8 @@ async function userDataSeed () {
   let userData = []
 
   // User input data
-  const fNameArr = [ 'ares', 'hermes', 'zeus','dionysius', 'hades', 'poseidon', 'apollo', 'athena', 'hera', 'athemis' ]
-  const lNameArr = [ 'mecury', 'mars', 'gaia', 'venus', 'saturn', 'jupiter', 'uranus', 'neptune', 'pluto', 'cronos' ]
+  const fNameArr = [ 'ares', 'hermes', 'zeus','dionysius', 'hades', 'poseidon', 'apollo', 'athena', 'hera', 'athemis', 'prometheus' ]
+  const lNameArr = [ 'mecury', 'mars', 'gaia', 'venus', 'saturn', 'jupiter', 'uranus', 'neptune', 'pluto', 'cronos', 'typhon' ]
   const emailArr = [ 'ares@gmail.com', 'hermes@gmail.com', 'zeus@gmail.com', 'dionysius@gmail.com', 'hades@gmail.com', 'poseidon@gmail.com', 'apollo@gmail.com', 'athena@gmail.com', 'hera@gmail.com', 'athemis@gmail.com']
   const mobileArr = [ 9020790850, 9020790841, 9020790842, 9020790843, 9020790844, 9020790845, 9020790846, 9020790847, 9020790848, 9020790849 ]
   const password = 'secret'
