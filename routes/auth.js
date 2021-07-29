@@ -170,7 +170,7 @@ router.get('/googleauth', passport.authenticate('google', { scope: ['profile', '
 /*
  ** Google auth Callback route
  */
-router.get('/googleauth/registerCallback?', passport.authenticate('google', { failureRedirect: login_failed_uri }), async (req, res) => {
+router.get('/googleauth/registercallback?', passport.authenticate('google', { failureRedirect: login_failed_uri }), async (req, res) => {
     try {
       const email = req.user[0]['_json']['email']
       // Get user from database
